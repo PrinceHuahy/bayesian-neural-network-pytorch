@@ -41,12 +41,12 @@ def bayesian_kl_loss(model, reduction='mean', last_layer_only=False) :
         if isinstance(m, (BayesLinear, BayesConv2d)):
             kl = _kl_loss(m.weight_mu, m.weight_log_sigma, m.prior_mu, m.prior_log_sigma)
             kl_sum += kl
-            n += len(m.weight_mu.view(-1))
+            n += len(m.weight_mu.contiguous().view(-1))
 
             if m.bias :
                 kl = _kl_loss(m.bias_mu, m.bias_log_sigma, m.prior_mu, m.prior_log_sigma)
                 kl_sum += kl
-                n += len(m.bias_mu.view(-1))
+                n += len(m.bias_mu.contiguous().view(-1))
 
         if isinstance(m, BayesBatchNorm2d):
             if m.affine :
@@ -56,7 +56,7 @@ def bayesian_kl_loss(model, reduction='mean', last_layer_only=False) :
 
                 kl = _kl_loss(m.bias_mu, m.bias_log_sigma, m.prior_mu, m.prior_log_sigma)
                 kl_sum += kl                
-                n += len(m.bias_mu.view(-1))
+                n += len(m.bias_mu.contiguous().view(-1))
             
     if last_layer_only or n == 0 :
         return kl
